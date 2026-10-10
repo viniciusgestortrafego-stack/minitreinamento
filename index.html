@@ -27,12 +27,14 @@
         <strong>Como adicionar R$10 mil ou mais em receita recorrente ao seu negócio nos próximos 90 dias</strong>
       </h1>
 
-      <!-- Vídeo de vendas (YouTube) sem barra de progresso: o usuário não consegue avançar nem voltar.
-           Inicia sozinho (sem som, regra dos navegadores) quando a página termina de carregar. -->
+      <!-- Vídeo de vendas (YouTube): só toca depois do clique no botão.
+           Sem barra de progresso e sem link para o YouTube; clicar no vídeo pausa/retoma. -->
       <div class="video">
         <div id="player"></div>
-        <div class="shield"></div>
-        <button class="sound" id="sound" type="button" hidden>🔊 CLIQUE PARA ATIVAR O SOM</button>
+        <div class="shield" id="shield"></div>
+        <div class="cover" id="cover">
+          <button class="start" id="start" type="button" disabled>CARREGANDO…</button>
+        </div>
       </div>
 
       <a class="cta" target="_blank" rel="noopener"
@@ -96,13 +98,24 @@
   <script>
     var VIDEO_ID = '9WVw0Uzt5RE';
     var player, maxTime = 0, started = false;
-    var soundBtn = document.getElementById('sound');
+    var cover = document.getElementById('cover');
+    var startBtn = document.getElementById('start');
+    var shield = document.getElementById('shield');
 
-    // Só carrega o player do YouTube depois que a página inteira terminou de carregar.
+    cover.style.backgroundImage = "url('https://i.ytimg.com/vi/" + VIDEO_ID + "/hqdefault.jpg')";
+
+    // O player só é carregado depois que a página inteira terminou de carregar.
     window.addEventListener('load', function () {
       var tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       document.head.appendChild(tag);
+    });
+
+    // Se o YouTube não carregar (bloqueador, rede), avisa em vez de ficar travado.
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        if (startBtn.disabled) { startBtn.textContent = 'NÃO CARREGOU — ATUALIZE A PÁGINA'; }
+      }, 10000);
     });
 
     function onYouTubeIframeAPIReady() {
@@ -111,8 +124,7 @@
         width: '100%',
         height: '100%',
         playerVars: {
-          autoplay: 1,      // inicia sozinho
-          mute: 1,          // os navegadores só permitem autoplay sem som
+          autoplay: 0,      // não toca sozinho: só depois do clique no botão
           controls: 0,      // sem barra de progresso nem botões
           disablekb: 1,     // desativa o teclado (setas, espaço, números)
           fs: 0,            // sem tela cheia
@@ -122,10 +134,9 @@
           playsinline: 1
         },
         events: {
-          onReady: function (e) {
-            e.target.mute();
-            e.target.playVideo();
-            soundBtn.hidden = false;
+          onReady: function () {
+            startBtn.disabled = false;
+            startBtn.textContent = '▶ CLIQUE PARA ASSISTIR';
           },
           onStateChange: onStateChange
         }
@@ -133,36 +144,39 @@
 
       // Trava: se o tempo pular para frente além do que já foi assistido, volta.
       setInterval(function () {
-        if (!player || !player.getCurrentTime || !started) return;
+        if (!player || !started) return;
         var t = player.getCurrentTime();
         if (t > maxTime + 1.5) { player.seekTo(maxTime, true); }
         else if (t > maxTime) { maxTime = t; }
       }, 500);
-
-      // Se o navegador bloquear o autoplay, o botão passa a pedir o clique para assistir.
-      setTimeout(function () {
-        if (!started) { soundBtn.textContent = '▶ CLIQUE PARA ASSISTIR'; soundBtn.hidden = false; }
-      }, 3000);
     }
 
     function onStateChange(e) {
-      if (e.data === YT.PlayerState.PLAYING) {
-        started = true;
-        soundBtn.textContent = '🔊 CLIQUE PARA ATIVAR O SOM';
-        soundBtn.hidden = !player.isMuted();
-      }
-      if (e.data === YT.PlayerState.ENDED) {   // evita a tela de vídeos sugeridos
+      if (e.data === YT.PlayerState.PLAYING) { started = true; }
+      if (e.data === YT.PlayerState.ENDED) {     // evita a tela de vídeos sugeridos
         player.seekTo(0, true);
         player.pauseVideo();
+        maxTime = 0; started = false;
+        startBtn.textContent = '↻ ASSISTIR NOVAMENTE';
+        cover.hidden = false;
       }
     }
 
-    soundBtn.addEventListener('click', function () {
+    // Botão inicial: libera o vídeo, com som.
+    startBtn.addEventListener('click', function () {
       if (!player) return;
+      cover.hidden = true;
       player.unMute();
       player.setVolume(100);
       player.playVideo();
-      soundBtn.hidden = true;
+    });
+
+    // Clique no vídeo: pausa / retoma. A camada transparente impede qualquer clique
+    // chegar ao YouTube (logo, título, link), então ninguém é levado para fora da página.
+    shield.addEventListener('click', function () {
+      if (!player || !started) return;
+      if (player.getPlayerState() === YT.PlayerState.PLAYING) { player.pauseVideo(); }
+      else { player.playVideo(); }
     });
   </script>
 

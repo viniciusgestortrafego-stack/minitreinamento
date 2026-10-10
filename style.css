@@ -57,8 +57,9 @@ body {
   width: 100%;
   max-width: 812px;
   margin: 0 auto 18px;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 16 / 9;
   background: #000;
+  overflow: hidden;
 }
 .video iframe {
   position: absolute;
@@ -116,7 +117,7 @@ body {
   .hero { padding: 9px 0 20px; }
   .welcome { font-size: 12px; }
   .title { font-size: 16px; margin-bottom: 14px; }
-  .video { margin-bottom: 14px; aspect-ratio: 17 / 10; }
+  .video { margin-bottom: 14px; }
   .cta { max-width: 237px; height: 40px; font-size: 14px; }
   .text { font-size: 14px; }
   .footer { font-size: 9px; }
@@ -124,3 +125,16 @@ body {
 
 /* prints dos resultados */
 .print { display: block; max-width: 100%; height: auto; margin-top: 14px; border-radius: 8px; }
+
+/* player do YouTube: sem barra de progresso, sem cliques no vídeo */
+.video .shield { position: absolute; inset: 0; z-index: 2; cursor: default; }
+.video .sound {
+  position: absolute; left: 50%; top: 50%; z-index: 3;
+  transform: translate(-50%, -50%);
+  padding: 14px 22px;
+  border: 0; border-radius: 8px;
+  background: #1ee557; color: #fff;
+  font-family: "Open Sans", Arial, sans-serif; font-weight: 700; font-size: 16px;
+  cursor: pointer;
+}
+.video .sound[hidden] { display: none; }

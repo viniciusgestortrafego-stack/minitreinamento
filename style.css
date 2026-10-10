@@ -124,7 +124,7 @@ body {
 }
 
 /* prints dos resultados */
-.print { display: block; max-width: 100%; height: auto; margin-top: 14px; border-radius: 8px; }
+.print { display: block; max-width: min(100%, 360px); height: auto; margin-top: 14px; border-radius: 8px; }
 
 /* player do YouTube: sem barra de progresso, sem cliques no vídeo */
 .video .shield { position: absolute; inset: 0; z-index: 2; cursor: default; }

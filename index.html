@@ -166,6 +166,8 @@
 
     soundBtn.addEventListener('click', function () {
       if (!player) return;
+      maxTime = 0;               // recomeça a contagem da trava
+      player.seekTo(0, true);    // o vídeo reinicia do zero ao ativar o som
       player.unMute();
       player.setVolume(100);
       player.playVideo();

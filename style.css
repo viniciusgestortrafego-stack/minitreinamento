@@ -121,3 +121,6 @@ body {
   .text { font-size: 14px; }
   .footer { font-size: 9px; }
 }
+
+/* prints dos resultados */
+.print { display: block; max-width: 100%; height: auto; margin-top: 14px; border-radius: 8px; }
